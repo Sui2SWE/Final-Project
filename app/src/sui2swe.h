@@ -12,27 +12,31 @@
 #include <sstream>
 #include <set>
 
+#include "graph.h"
+#include "algo.cpp"
+
 using namespace std;
 
 typedef vector<vector<string>> V2D;
 
-typedef vector<pair<string, string>> ConnectedTxData; // <tx_digest, obj_id>
+// typedef unordered_map<string, unordered_map<string, string>> ConnectedTxs; // {tx_digest : {tx_dgiest : obj_id, ...}, ...}
 
-typedef unordered_map<string, ConnectedTxData> ConnectedTxs;
-
-typedef unordered_map<string, unordered_map<string, unsigned int>> GasTxs; // {tx_digest : {tx_digest : gas, tx_digest : gas, ...}, ...}
+typedef unordered_map<string, unordered_map<string, int>> GasTxs; // {tx_digest : {tx_digest : gas, tx_digest : gas, ...}, ...}
 
 class Sui2Swe {
 	public:
 		// Sui2Swe();
 
-		void file_to_connected_txs(const string &filename);
+		void file_to_graph(const string &filename);
+
+		void create_graph();
 
 		ConnectedTxs txs;
 
-		unordered_map<string, unsigned int> timestamps;
+		unordered_map<string, int> timestamps;
 
 		GasTxs gas_used;
 	
+		// Graph graph;
 	private:
 };

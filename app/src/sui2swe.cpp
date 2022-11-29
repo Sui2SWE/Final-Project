@@ -12,8 +12,14 @@
 #include "sui2swe.h"
 #include "utils.h"
 
+vector<string> get_object_data(string other_tx) {
+	vector<string> otx_elems;
+	SplitString(other_tx, ' ', otx_elems);
+	// otx_object_id, otx_tx_digest
+	return vector<string>({otx_elems[0], otx_elems[2]});
+}
 
-void Sui2Swe::file_to_connected_txs(const string &filename){
+void Sui2Swe::file_to_graph(const string &filename){
 	string s = file_to_string(filename);
 
 	vector<string> lines;
@@ -26,29 +32,54 @@ void Sui2Swe::file_to_connected_txs(const string &filename){
 	for (unsigned i = 1; i < lines.size(); i++) {
 		vector<string> elems;
 		SplitString(lines[i], ',', elems);
+		// cout << "0: " << elems[0] << endl;
+		// cout << "1: " << elems[1] << endl;
+		// cout << "s: " << stoi(Trim(elems[1])) << endl;
+		// cout << "2: " << elems[2] << endl;
 
 		string tx_digest = elems[0];
 
 		// timestamps[tx_digest] = stoi(elems[1]);
-		txs[tx_digest] = ConnectedTxData(); // init vector for this tx
+		// if (!txs.count(tx_digest)) txs[tx_digest] = unordered_map<string, string>(); // init map for this tx
 
-		if (!gas_used.count(tx_digest)) gas_used[tx_digest] = unordered_map<string, unsigned int>(); // init new map (if not exists)
+		if (!gas_used.count(tx_digest)) gas_used[tx_digest] = unordered_map<string, int>(); // init new map (if not exists)
 		// gas_used[tx_digest][tx_digest] = stoi(elems[6]);
 
+		vector<string> shared_otxs;
+		vector<string> created_otxs;
+		vector<string> mutated_otxs;
 
-		for (unsigned j = 2; j < 5; j++) {
-			if (elems[j].empty()) continue; // skip empty fields
-			vector<string> other_txs;
-			SplitString(elems[j], '|', other_txs);
+		// NOTE: Shared txs are INPUT, so graph maps the direction as {otx_tx_digest -> tx_digest}
+		if (!elems[3].empty()) {
+			vector<string> shared_otxs;
+			SplitString(elems[3], '|', shared_otxs);
 
-			for (string other_tx : other_txs) {
-				vector<string> otx_elems;
-				SplitString(other_tx, ' ', otx_elems);
+			for (string shared_otx : shared_otxs) {
+				vector<string> otx_data = get_object_data(shared_otx);
+				string otx_object_id = otx_data[0];
+				string otx_tx_digest = otx_data[1];
 
-				string otx_object_id = otx_elems[0];
-				string otx_tx_digest = otx_elems[2];
-				txs[tx_digest].push_back(make_pair(otx_tx_digest, otx_object_id)); // make_pair implicitly infers type
+				if (!txs.count(otx_tx_digest)) txs[otx_tx_digest] = unordered_map<string, string>(); // init map for this tx
+				txs[otx_tx_digest][tx_digest] = otx_object_id;
 			}
 		}
+
+		// NOTE: Created txs are OUTPUT, so graph maps the direction as {tx_digest -> otx_tx_digest}
+		for (unsigned j = 4; j <= 5; j++) {
+			if (elems[j].empty()) continue; // skip empty fields
+			vector<string> output_txs;
+			SplitString(elems[j], '|', output_txs);
+
+			for (string output_tx : output_txs) {
+				vector<string> otx_data = get_object_data(output_tx);
+				string otx_object_id = otx_data[0];
+				string otx_tx_digest = otx_data[1];
+
+				if (!txs.count(tx_digest)) txs[tx_digest] = unordered_map<string, string>(); // init map for this tx
+				txs[tx_digest][otx_tx_digest] = otx_object_id;
+			}
+		}
+
+		// graph = Graph(txs);
 	}
 }
