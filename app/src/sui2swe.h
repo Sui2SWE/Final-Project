@@ -15,7 +15,6 @@
 #include "graph.h"
 #include "algo.cpp"
 
-using namespace std;
 
 typedef vector<vector<string>> V2D;
 

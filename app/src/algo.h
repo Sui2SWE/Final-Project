@@ -15,7 +15,8 @@
 class Algo {
 	public:
 		static bool DFS(ConnectedTxs txs, string start, string goal);
-		static void shortestPath();
+		static pair<string, int> shortestPath(unordered_map<string, int> &dist, unordered_map<string, bool> &visited);
+		static int djikstra(ConnectedTxs txs, string src, string dest);
 		static void topologicalSort();
 };
 

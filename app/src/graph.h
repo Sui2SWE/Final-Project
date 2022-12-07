@@ -7,10 +7,11 @@
 #include <list>
 #include <fstream>
 #include <unordered_map>
+// #include <pair>
 
 using namespace std;
 
-typedef unordered_map<string, unordered_map<string, string>> ConnectedTxs; // {tx_digest : {tx_dgiest : obj_id, ...}, ...}
+typedef unordered_map<string, unordered_map<string, pair<string, int>>> ConnectedTxs; // {tx_digest : {tx_dgiest : (obj_id, gas_price), ...}, ...}
 
 class Graph {
 	public:

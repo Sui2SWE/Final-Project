@@ -12,11 +12,20 @@
 #include "sui2swe.h"
 #include "utils.h"
 
+using namespace std;
+
 vector<string> get_object_data(string other_tx) {
 	vector<string> otx_elems;
 	SplitString(other_tx, ' ', otx_elems);
 	// otx_object_id, otx_tx_digest
 	return vector<string>({otx_elems[0], otx_elems[2]});
+}
+
+int string_to_number(string s) {
+	int n;
+	stringstream ss(s);
+	ss >> n;
+	return n;
 }
 
 void Sui2Swe::file_to_graph(const string &filename){
@@ -59,12 +68,13 @@ void Sui2Swe::file_to_graph(const string &filename){
 				string otx_object_id = otx_data[0];
 				string otx_tx_digest = otx_data[1];
 
-				if (!txs.count(otx_tx_digest)) txs[otx_tx_digest] = unordered_map<string, string>(); // init map for this tx
-				txs[otx_tx_digest][tx_digest] = otx_object_id;
+				if (!txs.count(otx_tx_digest)) txs[otx_tx_digest] = unordered_map<string, pair<string, int>>(); // init map for this tx
+				// TODO: fix gas
+				txs[otx_tx_digest][tx_digest] = make_pair(otx_object_id, 1); // string_to_number(elems[6])
 			}
 		}
 
-		// NOTE: Created txs are OUTPUT, so graph maps the direction as {tx_digest -> otx_tx_digest}
+		// NOTE: Mutated & Created txs are OUTPUT, so graph maps the direction as {tx_digest -> otx_tx_digest}
 		for (unsigned j = 4; j <= 5; j++) {
 			if (elems[j].empty()) continue; // skip empty fields
 			vector<string> output_txs;
@@ -75,8 +85,9 @@ void Sui2Swe::file_to_graph(const string &filename){
 				string otx_object_id = otx_data[0];
 				string otx_tx_digest = otx_data[1];
 
-				if (!txs.count(tx_digest)) txs[tx_digest] = unordered_map<string, string>(); // init map for this tx
-				txs[tx_digest][otx_tx_digest] = otx_object_id;
+				if (!txs.count(tx_digest)) txs[tx_digest] = unordered_map<string, pair<string, int>>(); // init map for this tx
+				// TODO: fix gas
+				txs[tx_digest][otx_tx_digest] = make_pair(otx_object_id, 1); // string_to_number(elems[6])
 			}
 		}
 
