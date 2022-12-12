@@ -29,23 +29,15 @@ The DFS, or Depth-First Search, is an algorithm for traversing a graph or tree d
 
 The time complexity of DFS is O(V+E), where E is the number of edges in the graph. This is because the algorithm checks each vertex and edge of the graph exactly once, with a time complexity of O(C) to make each check.
 
-To test the integrity of the DFS we constructed a small test DAG and ran DFS with the pair of nodes that: 
+To test the integrity of the DFS we constructed small test DAGs - one simple (only one node without a predecessor), and one twisted (multiple nodes without predecessors) and ran DFS with the pair of nodes that:
 
-Have a valid connection from node a to node b, thus returning true
+Are part of a valid path, returning true
 
-Does not have a valid connection from node a to node b, thus returning false
+Are not part of a valid path, returning false
 
-Called on a nodes not part of the same connected component
+And run on an empty DAG, also returning false.
 
-Called on nodes that are connected but with the edge directed in the opposite direction
 
-Equal one another (the same node), thus returning true
-
-Are not part of the graph, thus returning false
-
-Called on a invalid node
-
-Called on an empty graph
 
 ## Dijkstra's Algorithm: 
 
@@ -53,29 +45,23 @@ Dijkstra's algorithm is a graph search algorithm that is designed to find the sh
 	
 The time complexity of Dijkstra's algorithm is O((V+E)logV), with V and E representing the number of vertices and edges within the graph, respectively. This happens because the algorithm needs to traverse the adjacency set to find the minimum cost edge at each step.
 
-We used the same test DAG constructed in the testing of the DFS to test the DAG. The specific test cases included two nodes:
+We used the same test DAGs constructed in the testing of the DFS to test the DAG. The specific test cases included two nodes that:
 
 Have a valid connection from node a to node b, thus returning the total weight of the path with the lowest gas use
 
+Are equal one another (the same node), thus returning 0
+
 Does not have a valid connection from node a to node b, thus returning -1
 
-Called on a nodes not part of the same connected component
-
-Called on nodes that are connected but with the edge directed in the opposite direction
-
-Equal one another (the same node), thus returning 0
-
-Are not part of the graph, thus returning -1
-
-Called on a invalid node
-
-Called on an empty graph
+Are connected but with the edge directed in the opposite direction, also returning -1.
 
 ## Data Visualization via Topological Sort:
 
 A topological sort algorithm is an algorithm that takes a directed graph and returns an array of the nodes where each node appears before all the nodes it points to. A topological sort’s role in the context of the Sui blockchain is that it can be used to determine the order in which the transactions need to be made. Our version of the algorithm depends on a process similar to our depth first search algorithm - however, it returns an array of transactions instead of a boolean.
 
 Likewise, the time complexity of the topological search is O(V+E) with the reasoning being similar to that of the DFS -  each vertex and edge of the graph is visited once with each visit resulting in a runtime of O(C).
+
+We used the same test DAGs constructed in the testing of the DFS to test the topological sort, running topological sort on both to see if the return arrays were valid topological sorts.
 
 	
 ## Conclusion
