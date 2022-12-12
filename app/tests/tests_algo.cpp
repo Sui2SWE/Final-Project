@@ -26,7 +26,7 @@ ConnectedTxs txs_simple = {
 	},
 	{
 		"tx4", {
-			{"tx5", make_pair("obj5", 1)},
+			{"tx5", make_pair("obj6", 1)},
 		},
 	},
 	{
@@ -58,12 +58,12 @@ ConnectedTxs txs_twisted = {
 	},
 	{
 		"tx4", {
-			{"tx2", make_pair("obj5", 1)},
+			{"tx5", make_pair("obj6", 0)},
 		},
 	},
 	{
 		"tx5", {
-			{"tx3", make_pair("obj1", 1)},
+			{"tx6", make_pair("obj1", 1)},
 		},
 	},
 	{
@@ -82,8 +82,13 @@ TEST_CASE("test dfs find", "[weight=5][algo=dfs][type=dummy]") {
 }
 
 TEST_CASE("test dfs NO find", "[weight=5][algo=dfs][type=dummy]") {
-	bool found = Algo::DFS(txs_simple, "tx2", "tx3");
+	bool found = Algo::DFS(txs_simple, "tx2", "tx6");
 	REQUIRE(!found);
+}
+
+TEST_CASE("test dfs find twisted", "[weight=5][algo=dfs][type=dummy]") {
+	bool found = Algo::DFS(txs_twisted, "tx2", "tx6");
+	REQUIRE(found);
 }
 
 TEST_CASE("test djikstra empty", "[weight=5][algo=djikstra][type=dummy]") {
@@ -108,6 +113,13 @@ TEST_CASE("test djikstra find simple 1", "[weight=5][algo=djikstra][type=dummy]"
 
 TEST_CASE("test djikstra find simple 2", "[weight=5][algo=djikstra][type=dummy]") {
 	int num = Algo::djikstra(txs_simple, "tx2", "tx5");
+	REQUIRE(num == 3);
+}
+
+TEST_CASE("test djikstra find twisted 1", "[weight=5][algo=djikstra][type=dummy]") {
+	int num = Algo::djikstra(txs_simple, "tx2", "tx5");
+	// tx2 -(2)-> tx1 -(1)-> tx4 -(0)-> tx5 << shortest path
+	// tx2 -(2)-> tx1 -(5)-> tx5
 	REQUIRE(num == 3);
 }
 
