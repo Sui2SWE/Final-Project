@@ -1,6 +1,6 @@
-## Final-Project
+# Final-Project
 
-# Organization
+## Organization
 The repository has two main folders - the "data" folder and, the "app" folder.
 
 The data folder holds the csv files and the python scripts that are used to parse the csv files.
@@ -9,7 +9,7 @@ The app folder holds the bulk of the code for the project - the main, the algori
 
 The the project proposal, team contract, and final writeup can all be found within the main folder of the repository and the presention can be found by following the link below:
 
-# Running Instructions
+## Running Instructions
 The code runs on the workspace provided by the CS225 docker, thus the running insturctions are very similar.
 
 Once you are in the project directory, run the following commands to build the executeable:
