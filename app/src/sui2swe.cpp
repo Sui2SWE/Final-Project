@@ -21,14 +21,7 @@ vector<string> get_object_data(string other_tx) {
 	return vector<string>({otx_elems[0], otx_elems[2]});
 }
 
-int string_to_number(string s) {
-	int n;
-	stringstream ss(s);
-	ss >> n;
-	return n;
-}
-
-void Sui2Swe::file_to_graph(const string &filename){
+void Sui2Swe::file_to_graph(const string &filename) {
 	string s = file_to_string(filename);
 
 	vector<string> lines;
@@ -41,18 +34,10 @@ void Sui2Swe::file_to_graph(const string &filename){
 	for (unsigned i = 1; i < lines.size(); i++) {
 		vector<string> elems;
 		SplitString(lines[i], ',', elems);
-		// cout << "0: " << elems[0] << endl;
-		// cout << "1: " << elems[1] << endl;
-		// cout << "s: " << stoi(Trim(elems[1])) << endl;
-		// cout << "2: " << elems[2] << endl;
+		if (elems.size() < 7) continue;
+		// cout << "Processing transaction " << i << " of " << lines.size() << endl;
 
 		string tx_digest = elems[0];
-
-		// timestamps[tx_digest] = stoi(elems[1]);
-		// if (!txs.count(tx_digest)) txs[tx_digest] = unordered_map<string, string>(); // init map for this tx
-
-		if (!gas_used.count(tx_digest)) gas_used[tx_digest] = unordered_map<string, int>(); // init new map (if not exists)
-		// gas_used[tx_digest][tx_digest] = stoi(elems[6]);
 
 		vector<string> shared_otxs;
 		vector<string> created_otxs;
@@ -68,9 +53,10 @@ void Sui2Swe::file_to_graph(const string &filename){
 				string otx_object_id = otx_data[0];
 				string otx_tx_digest = otx_data[1];
 
-				if (!txs.count(otx_tx_digest)) txs[otx_tx_digest] = unordered_map<string, pair<string, int>>(); // init map for this tx
-				// TODO: fix gas
-				txs[otx_tx_digest][tx_digest] = make_pair(otx_object_id, 1); // string_to_number(elems[6])
+				if (tx_digest != "" && otx_tx_digest != "") {
+					if (!txs.count(otx_tx_digest)) txs[otx_tx_digest] = unordered_map<string, pair<string, int>>(); // init map for this tx
+					txs[otx_tx_digest][tx_digest] = make_pair(otx_object_id, stoi(elems[6]));
+				}
 			}
 		}
 
@@ -85,12 +71,11 @@ void Sui2Swe::file_to_graph(const string &filename){
 				string otx_object_id = otx_data[0];
 				string otx_tx_digest = otx_data[1];
 
-				if (!txs.count(tx_digest)) txs[tx_digest] = unordered_map<string, pair<string, int>>(); // init map for this tx
-				// TODO: fix gas
-				txs[tx_digest][otx_tx_digest] = make_pair(otx_object_id, 1); // string_to_number(elems[6])
+				if (tx_digest != "" && otx_tx_digest != "") {
+					if (!txs.count(tx_digest)) txs[tx_digest] = unordered_map<string, pair<string, int>>(); // init map for this tx
+					txs[tx_digest][otx_tx_digest] = make_pair(otx_object_id, stoi(elems[6]));
+				}
 			}
 		}
-
-		// graph = Graph(txs);
 	}
 }

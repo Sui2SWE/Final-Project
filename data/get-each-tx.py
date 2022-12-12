@@ -15,11 +15,31 @@ headers = {
   'Content-Type': 'application/json'
 }
 
+used = {}
+def get_obj_prev_tx(obj_id, obj_version):
+	key = '{}__{}'.format(obj_id, obj_version)
+	if key in used:
+		return used[key]
+
+	payload = {
+		'jsonrpc': '2.0',
+		'id': 1,
+		'method': 'sui_tryGetPastObject',
+		'params': [obj_id, obj_version - 1 if obj_version > 0 else 0]
+	}
+	print(obj_id, obj_version - 1 if obj_version > 0 else 0)
+	res = json.loads(
+		requests.request('POST', url, headers=headers, data=json.dumps(payload)).text
+	)['result']
+
+	used[key] = res['details']['previousTransaction'] if res['status'] == 'VersionFound' else 'NULL'
+	return used[key]
+
 txs = list()
-with open('./tx-list.csv', 'r') as f:
+with open('./tx-list-obj.csv', 'r') as f:
 	txs = f.read().split(',')
 
-f = open('./tx-data.csv', 'w')
+f = open('./tx-data-obj.csv', 'w')
 writer = csv.writer(f, lineterminator='\n')
 
 writer.writerow([
@@ -37,6 +57,7 @@ for tx in txs:
 	# if k == 10: break
 
 	payload['params'] = [tx]
+	print(tx)
 
 	res = json.loads(
 		requests.request('POST', url, headers=headers, data=json.dumps(payload)).text
@@ -60,7 +81,7 @@ for tx in txs:
 				' '.join([
 					obj['objectId'],
 					str(obj['version']),
-					obj['digest'],
+					get_obj_prev_tx(obj['objectId'], obj['version']),
 					# either the object owner or 'SHARED'
 					cr['owner']['AddressOwner'] if 'AddressOwner' in cr['owner'] else 'SHARED',
 				])
@@ -72,11 +93,16 @@ for tx in txs:
 	shared_objects_tx_digest = ''
 	if 'sharedObjects' in effects:
 		shared_objects = effects['sharedObjects']
-		shared_objects_tx_digest = shared_objects['transactionDigest']
+		if 'transactionDigest' in shared_objects:
+			shared_objects_tx_digest = shared_objects['transactionDigest']
 		shared_objects_str = []
 		
 		for obj in shared_objects:
-			shared_objects_str.append('{} {} {}'.format(obj['objectId'], str(obj['version']), obj['digest']))
+			shared_objects_str.append('{} {} {}'.format(
+				obj['objectId'],
+				str(obj['version']),
+				get_obj_prev_tx(obj['objectId'], obj['version'])
+			))
 
 		shared_objects_str = '|'.join(shared_objects_str)
 
@@ -91,7 +117,7 @@ for tx in txs:
 				' '.join([
 					obj['objectId'],
 					str(obj['version']),
-					obj['digest'],
+					get_obj_prev_tx(obj['objectId'], obj['version']),
 					# either the object owner or 'SHARED'
 					mut['owner']['AddressOwner'] if 'AddressOwner' in mut['owner'] else 'SHARED',
 				])
