@@ -1,7 +1,7 @@
 import requests
 import csv
 import json
-
+# Data Parsing
 url = 'https://fullnode.devnet.sui.io:443'
 
 payload = {
