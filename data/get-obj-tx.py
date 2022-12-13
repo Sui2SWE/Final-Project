@@ -32,6 +32,8 @@ for i in range(25000, 25400, 100):
 			# print(r)
 			all_tx_digests.add(r['result']['details']['previousTransaction'])
 
-with open('./tx-list-obj.csv', 'w') as f:
+with open('./tx-list-obj.csv', 'w') as f: # Opening the CSV
   f.write(','.join(all_tx_digests))
+
+
 
